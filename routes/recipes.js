@@ -57,11 +57,14 @@ router.get("/", function (req, res, next) {
   }
 
   if (req.query.search && req.query.tags) {
-    console.log(req.query.tags);
+    // console.log(req.query.tags);
+    console.log(req.query.search);
+    const tagFilters = JSON.parse(req.query.tags);
+    console.log(tagFilters);
 
     Recipe.find({
-      name: { $regex: new RegExp(req.query.search, "i") },
-      tags: { $all: req.query.tags },
+      name: { $regex: new RegExp(`\\b${req.query.search}\\b`, "i") },
+      tags: { $all: tagFilters },
     }).then((data) => {
       // console.log(data);
       res.json({ result: true, data });
