@@ -29,23 +29,23 @@ router.post("/new", (req, res) => {
 
 /* GET recipes listing with parameters. */
 router.get("/", function (req, res, next) {
-  if (!checkBody(req.body, ["token"])) {
-    res.json({ result: false, error: "Missing user token" });
-    return;
-  }
+  // if (!checkBody(req.body, ["token"])) {
+  //   res.json({ result: false, error: "Missing user token" });
+  //   return;
+  // }
 
-  User.findOne({ token: req.body.token }).then((user) => {
-    // console.log(req.query);
-    if (user === null) {
-      res.json({ result: false, error: "User not found" });
-    }
-    return;
-  });
+  // User.findOne({ token: req.body.token }).then((user) => {
+  //   // console.log(req.query);
+  //   if (user === null) {
+  //     res.json({ result: false, error: "User not found" });
+  //   }
+  //   return;
+  // });
 
   if (req.query.sortBy === "popularity" && req.query.limit) {
     Recipe.find({}, ["_id", "name", "image", "popularity"], {
       skip: 0,
-      limit: 10,
+      limit: req.query.limit,
       sort: {
         popularity: -1,
       },
@@ -60,8 +60,8 @@ router.get("/", function (req, res, next) {
     console.log(req.query.tags);
 
     Recipe.find({
-      name: { $regex: new RegExp("\\b${req.query.search}\\b", "i") },
-      // tags: { $all: req.query.tags },
+      name: { $regex: new RegExp(req.query.search, "i") },
+      tags: { $all: req.query.tags },
     }).then((data) => {
       // console.log(data);
       res.json({ result: true, data });
