@@ -8,13 +8,17 @@ const URL = "http://localhost:3000";
 
 //LIST OF ALL MENU ROUTES:
 // 1 route to create a menu, can optionnally add recipes; called in MenuTab and menu summary overlay
-// POST/menu/new
+// POST/menus/new
 // required: menuName and user token in req.body
 // optional: recipeId, serving if not empty: add the recipe to the menu newly created
 
 // 1 route to add a recipe to a menu, called in RecipeScreen or SearchScreen, can optionally create a menu if not existing in db
-// PUT/menu/:menuId
+// PUT/menus/:menuId
 //  required: user token in req.body, serving
+
+// 1 route to list the menus of a user
+// POST/menus
+// required: user token in req.body
 
 router.post("/new", (req, res) => {
   res.json({ result: "route POST menu" });
