@@ -13,7 +13,7 @@ const menusSchema = mongoose.Schema({
   name: String,
   is_archived: { type: Boolean, default: false },
   date_created: { type: Date, default: Date.now },
-  menu_recipe: menuRecipeSchema,
+  menu_recipes: [menuRecipeSchema],
 });
 
 const Menu = mongoose.model("menus", menusSchema);
