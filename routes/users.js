@@ -41,12 +41,14 @@ router.post('/signup', (req, res) => {
     if (data === null) {
       const hash = bcrypt.hashSync(req.body.password, 10);
 
+      console.log(req.body.regime);
+
       const newUser = new User({
         username: req.body.username,
         email: req.body.email,
         password: hash,
         token: uid2(32),
-        regime: req.body.regime,
+        regime: [req.body.regime],
         signup_date: Date.now(),
         menus: [],
       });

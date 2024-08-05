@@ -5,7 +5,7 @@ const usersSchema = mongoose.Schema({
   email: String,
   password: String,
   token: String,
-  regime: { type: String, enum: ["vegan", "lactose-free", "arachid-free"] },
+  regime: { type: [String], enum: ["vegan", "lactose-free", "arachid-free"]},
   signup_date: { type: Date, default: Date.now },
   menus: [{ type: mongoose.Schema.Types.ObjectId, ref: "menus" }],
 });
