@@ -7,6 +7,6 @@ const ingredientsSchema = mongoose.Schema({
     regime: {type : String, enum: ['vegan', 'lactose-free', 'arachid-free']}
 })
 
-const User = mongoose.model('ingredients', ingredientsSchema);
+const Ingredient = mongoose.model('ingredients', ingredientsSchema);
 
-module.exports = User;
+module.exports = Ingredient;

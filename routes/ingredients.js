@@ -15,7 +15,7 @@ router.get('/:id', function(req, res) {
 
   Ingredient.find({id : req.params.id})
   .then((data)=> {
-    res.json('ok');
+    res.json({result:true,Ingredients : data});
   })
   
 });
