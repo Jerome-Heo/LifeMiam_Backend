@@ -1,10 +1,17 @@
 function checkRegime(regime) {
   let isValid = true;
+  const tabControle = ["vegan", "lactose-free", "arachid-free"];
+
+  // If regime is a string we check the value with tabControle
+  if(typeof regime === 'string') {
+    const value = tabControle.find(element => element === regime);
+    if (!value) {
+      isValid = false;
+    }
+  }
   
-  console.log("Regime log: " + regime);
+  // If regime is an object we check the value with tabControle
   if (Array.isArray(regime) && regime.length > 0) {
-    console.log("Dans le if");
-    const tabControle = ["vegan", "lactose-free", "arachid-free"];
     for (const key of regime) {
       const value = tabControle.find(element => element === key);
       if (!value) {
