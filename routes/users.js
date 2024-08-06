@@ -3,6 +3,7 @@ var router = express.Router();
 
 const User = require('../models/users');
 const { checkBody } = require('../modules/checkBody');
+const { checkRegime } = require('../modules/checkRegime');
 
 // UID2
 const uid2 = require('uid2');
@@ -36,6 +37,12 @@ router.post('/signup', (req, res) => {
     return;
   }
 
+  // Need to fix the issue
+  if (!checkRegime(req.body.regime)) {
+    res.json({ result: false, error: 'Wrong regime fields' });
+    return;
+  }
+
   // Check if the user has not already been registered
   User.findOne({ username: req.body.username }).then(data => {
     if (data === null) {
@@ -48,7 +55,7 @@ router.post('/signup', (req, res) => {
         email: req.body.email,
         password: hash,
         token: uid2(32),
-        regime: [req.body.regime],
+        regime: req.body.regime,
         signup_date: Date.now(),
         menus: [],
       });
