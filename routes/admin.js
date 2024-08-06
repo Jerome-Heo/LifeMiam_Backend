@@ -4,9 +4,9 @@ var router = express.Router();
 const Recipe = require("../models/recipes");
 
 
-const Recipe2 = require("../models/recipescopy");
+// const Recipe2 = require("../models/recipescopy");
 const Ingredient = require("../models/ingredients");
-const Ingredient2 = require("../models/ingredientscopy");
+// const Ingredient2 = require("../models/ingredientscopy");
 
 const User = require("../models/users");
 const { checkBody } = require("../modules/checkBody");
