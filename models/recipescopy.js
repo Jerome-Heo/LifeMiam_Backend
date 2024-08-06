@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
-const ingredientsSchema = mongoose.Schema({
-  ingredients: { type: mongoose.Schema.Types.name, ref: "recipes" },
+const ingredientsSchema2 = mongoose.Schema({
+  ingredient: String,
   quantity: Number, //should support null value
 });
 
@@ -11,7 +11,7 @@ const recipesCopySchema = mongoose.Schema({
   regime: [String],
   image: String,
   default_serving: Number,
-  ing: [ingredientsSchema],
+  ing: [ingredientsSchema2],
   steps: [String],
   difficulty: Number,
   time: Number,
@@ -21,6 +21,6 @@ const recipesCopySchema = mongoose.Schema({
   temps_cuisson: Number,
 });
 
-const RecipeCopy = mongoose.model("recipes", recipesCopySchema);
+const RecipeCopy = mongoose.model("recipes2", recipesCopySchema);
 
 module.exports = RecipeCopy;

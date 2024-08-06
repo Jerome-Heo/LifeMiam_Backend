@@ -7,6 +7,6 @@ const IngredientCopySchema = mongoose.Schema({
     regime: {type : String, enum: ['vegan', 'lactose-free', 'arachid-free']}
 })
 
-const IngredientCopy = mongoose.model('IngredientCopy', IngredientCopySchema);
+const IngredientCopy = mongoose.model('Ingredients2', IngredientCopySchema);
 
 module.exports = IngredientCopy;
