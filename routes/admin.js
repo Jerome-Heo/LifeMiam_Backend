@@ -17,7 +17,7 @@ const fs = require('fs');
 
 
 router.get("/all", function (req, res, next) {
-    Recipe.find()
+    Recipe.find({})
     .then((data)=>{
       res.json({result:true,data})
     })

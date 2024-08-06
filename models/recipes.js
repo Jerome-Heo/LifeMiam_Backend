@@ -6,7 +6,7 @@ const ingredientsSchema = mongoose.Schema({
 });
 
 const recipesSchema = mongoose.Schema({
-  _id: Number,
+  // _id: Number,
   name: String,
   tags: [String],
   regime: [String],
