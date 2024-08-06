@@ -54,6 +54,12 @@ router.post("/addpicture", async (req, res) => {
   */
 
   router.put("/edit", async (req, res) => {
+
+    if (req.body.image.includes('cloudinary'))
+    {
+      cloudinary.uploader.destroy(req.body.image)
+    }
+
   
     Recipe.updateOne({_id: req.body.id}, {$set: {
       id:req.body.id,
