@@ -65,3 +65,5 @@ router.post("/addpicture", async (req, res) => {
       })
     
   })
+
+  module.exports = router;
