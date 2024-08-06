@@ -144,7 +144,9 @@ router.get("/:recipeId/:token", (req, res) => {
   Recipe.find({ _id: req.params.recipeId })
     .populate()
     .then((data) => {
-      console.log(data);
+      data.length > 0
+        ? res.json({ result: true, data })
+        : res.json({ result: false, error: "Recipe not found" });
     });
 });
 
