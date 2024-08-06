@@ -7,7 +7,7 @@ const { checkBody } = require("../modules/checkBody");
 
 const URL = "http://localhost:3000";
 
-const uid2 = require('uid2');
+const uid2 = require("uid2");
 
 //LIST OF ALL MENU ROUTES:
 // 1 route to create a recipe for testing purposes, with all fields
@@ -32,33 +32,28 @@ router.post("/new", (req, res) => {
 /* GET recipes listing with parameters. */
 router.get("/", function (req, res, next) {
   // if (
-  //   !checkBody(req.query, ["sortBy"]) ||
-  //   !checkBody(req.query, ["search"]) ||
-  //   !checkBody(req.query, ["tags"])
+  //   req.query.sortBy === null ||
+  //   req.query.sortBy === "" ||
+  //   req.query.search === null ||
+  //   req.query.search === "" ||
+  //   req.query.tags === null ||
+  //   req.query.tags === ""
   // ) {
   //   res.json({ result: false, error: "Missing mandatory fields" });
   //   return;
   // }
 
-  // User.findOne({ token: req.body.token }).then((user) => {
-  //   // console.log(req.query);
-  //   if (user === null) {
-  //     res.json({ result: false, error: "User not found" });
-  //   }
+  // if (!checkBody(req.query, ["search"]) && !checkBody(req.query, ["tags"])) {
+  //   res.json({ result: false, error: "Missing mandatory fields" });
   //   return;
-  // });
+  // }
 
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 10;
   const offset = (page - 1) * limit;
 
   // to display recipes sort by popularity
-  if (req.query.sortBy === "popularity") {
-    if (!checkBody(req.query, ["limit", "page"])) {
-      res.json({ result: false, error: "Missing or empty fields" });
-      return;
-    }
-
+  if (checkBody(req.query, ["sortBy"]) && req.query.sortBy === "popularity") {
     Recipe.find({}, ["_id", "name", "image", "popularity"], {
       skip: offset,
       limit: limit,
@@ -73,42 +68,86 @@ router.get("/", function (req, res, next) {
     return;
   }
 
-  // to search input and tags filter results
-  if (req.query.search && req.query.tags) {
-    const tagFilters = JSON.parse(req.query.tags);
+  // if search input without tags filter
+  if (checkBody(req.query, ["search"]) && req.query.search) {
+    // to search input and tags filter results
 
-    Recipe.find({
-      name: { $regex: new RegExp(`\\b${req.query.search}\\b`, "i") },
-      tags: { $all: tagFilters },
-      skip: offset,
-      limit: limit,
-    }).then((data) => {
+    if (checkBody(req.query, ["tags"])) {
+      const tagFilters = JSON.parse(req.query.tags);
+      Recipe.find(
+        {
+          name: { $regex: new RegExp(`\\b${req.query.search}\\b`, "i") },
+          tags: { $all: tagFilters },
+          skip: offset,
+          limit: limit,
+        },
+        ["_id", "name", "image", "popularity"]
+      ).then((data) => {
+        data.length > 0
+          ? res.json({ result: true, count: data.length, data })
+          : res.json({ result: false, error: "No result found" });
+      });
+      return;
+    } else {
+      Recipe.find({
+        name: { $regex: new RegExp(`\\b${req.query.search}\\b`, "i") },
+        skip: offset,
+        limit: limit,
+      }).then((data) => {
+        data.length > 0
+          ? res.json({ result: true, count: data.length, data })
+          : res.json({ result: false, error: "No result found" });
+      });
+      return;
+    }
+  }
+
+  if (
+    checkBody(req.query, ["tags"]) &&
+    checkBody(req.query, ["sortBy"]) &&
+    req.query.sortBy === "popularity"
+  ) {
+    const tagFilters = JSON.parse(req.query.tags);
+    Recipe.find(
+      {
+        tags: { $all: tagFilters },
+        sort: {
+          popularity: -1,
+        },
+        skip: offset,
+        limit: limit,
+      },
+      ["_id", "name", "image", "popularity"]
+    ).then((data) => {
       data.length > 0
         ? res.json({ result: true, count: data.length, data })
         : res.json({ result: false, error: "No result found" });
     });
+    return;
   }
-
-  // if (req.query.search) {
-  //   const tagFilters = JSON.parse(req.query.tags);
-
-  //   Recipe.find({
-  //     name: { $regex: new RegExp(`\\b${req.query.search}\\b`, "i") },
-  //     tags: { $all: tagFilters },
-  //     skip: offset,
-  //     limit: limit,
-  //   }).then((data) => {
-  //     data.length > 0
-  //       ? res.json({ result: true, count: data.length, data })
-  //       : res.json({ result: false, error: "No result found" });
-  //   });
-  // }
 
   // TO-DO
   // gerer les accents dans la recherche
   // gerer les whitespaces : hyphens? +?
 });
 
-router.get;
+// GET one recipe to display
+router.get("/:recipeId/:token", (req, res) => {
+  User.findOne({ token: req.params.token }).then((user) => {
+    // console.log(req.query);
+    if (user === null) {
+      res.json({ result: false, error: "User not found" });
+    }
+    return;
+  });
+
+  Recipe.find({ _id: req.params.recipeId })
+    .populate()
+    .then((data) => {
+      data.length > 0
+        ? res.json({ result: true, data })
+        : res.json({ result: false, error: "Recipe not found" });
+    });
+});
 
 module.exports = router;
