@@ -10,21 +10,9 @@ const URL = "http://localhost:3000";
 const uid2 = require("uid2");
 
 //LIST OF ALL MENU ROUTES:
-// 1 route to create a recipe for testing purposes, with all fields
-// POST/menus/new
-// required: menuName and user token in req.body
-// optional: recipeId, serving if not empty: add the recipe to the menu newly created
-router.post("/new", (req, res) => {
-  const newRecipe = new Recipe({
-    name: req.body.name,
-    tags: req.body.tags,
-    regime: req.body.regime,
-    image: req.body.image,
-  });
-});
 
 // 1 route to get recipes based on multiple criteria: popularity, limit, search input, tags
-// GET/recipes/?search="crepe"&limit=10&tags="lactose-free"&sortBy=popularity
+// GET/recipes/?search="crepe"&tags="lactose-free"&sortBy=popularity
 // required: user token in req.body
 //or array=["foo","bar"] puis JSON.parse()
 // optional: recipeId, serving if not empty: add the recipe to the menu newly created
@@ -70,10 +58,10 @@ router.get("/:recipeId/:token", (req, res) => {
     return;
   });
 
-  Recipe.find({ _id: req.params.recipeId })
-    .populate()
+  Recipe.findById(req.params.recipeId)
+    .populate("_id", ["name", "unit", "_id"])
     .then((data) => {
-      data.length > 0
+      data
         ? res.json({ result: true, data })
         : res.json({ result: false, error: "Recipe not found" });
     });

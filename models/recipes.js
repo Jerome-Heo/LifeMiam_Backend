@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const ingredientsSchema = mongoose.Schema({
-  ingredients: { type: mongoose.Schema.Types.ObjectId, ref: "recipes" },
+  _id: { type: mongoose.Schema.Types.ObjectId, ref: "recipes" },
   quantity: Number, //should support null value
 });
 
