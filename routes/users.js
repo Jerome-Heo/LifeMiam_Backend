@@ -32,12 +32,13 @@ router.post('/signin', (req, res) => {
 });
 
 router.post('/signup', (req, res) => {
+  // We check if username / email / password is empty
   if (!checkBody(req.body, ['username', 'email', 'password' ])) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
 
-  // Need to fix the issue
+  // We check if regime is matching our value (on a string or an object)
   if (!checkRegime(req.body.regime)) {
     res.json({ result: false, error: 'Wrong regime fields' });
     return;
