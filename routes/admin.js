@@ -4,9 +4,9 @@ var router = express.Router();
 const Recipe = require("../models/recipes");
 
 
-const Recipe2 = require("../models/recipescopy");
+// const Recipe2 = require("../models/recipescopy");
 const Ingredient = require("../models/ingredients");
-const Ingredient2 = require("../models/ingredientscopy");
+// const Ingredient2 = require("../models/ingredientscopy");
 
 const User = require("../models/users");
 const { checkBody } = require("../modules/checkBody");
@@ -17,7 +17,7 @@ const fs = require('fs');
 
 
 router.get("/all", function (req, res, next) {
-    Recipe.find()
+    Recipe.find({})
     .then((data)=>{
       res.json({result:true,data})
     })
@@ -46,13 +46,13 @@ router.post("/addpicture", async (req, res) => {
     {
         res.json({ result: false, error: resultMove });
     }
-    // si la recette a déja une url cloudinary en base , je la remove et je la remplace
-    // sinon je 
-  
-    // save la recipe
-    
-  
   })
+
+
+  /*
+  * édition de la recette 
+  */
+
   router.put("/edit", async (req, res) => {
   
     Recipe.updateOne({_id: req.body.id}, {$set: {
@@ -75,55 +75,50 @@ router.post("/addpicture", async (req, res) => {
   /*
   * route qui permet de transformer les ingrédients en string d'une recette en objectIds
   */
-  router.get("/transformrecipe/:id", (req, res) =>
-  {
-    if (!checkBody(req.params, ['id'])) {
-        res.json({ result: false, error: 'Missing or empty fields' });
-        return;
+
+ //Je vais chercher une recette par son id
+  router.get("/transformrecipe/:id", async (req, res) => {
+
+    //est-ce que mon id est correctement renseignée ?
+    if (!req.params.id) {
+      return res.json({ result: false, error: 'Missing or empty id field' });
     }
-
-    Recipe2.find({_id : req.params.id})
-    .then((data) => {
-          // je récupère la recette 
-        // pour chaque ingrédient 
-        for(let ingredient of data[0].ing)
-        {
-            // console.log({ingredient : ingredient._id}) // a remplacer par le nouveau
-            // console.log({ingredient : ingredient.ingredient}) 
-            Ingredient2.findOne({name : { $regex: new RegExp(`\\b${ingredient.ingredient}\\b`, "i") }})
-            .then((data) => {
-                //console.log(data.id)
-
-                    // viser l'ingredient dans la recette et remplacer son id par celui ci
-                    // Recipe2.find({_id : req.params.id})
-                  Recipe2.findOneAndReplace(
-                        { _id: req.params.id, ing:{ingredient :  ingredient.ingredient}}  ,
-                        {
-                        $set
-                        }).then((data)=>
-                        {
-                            console.log(data)
-                           
-                        })
-                   
-               
-            })
+  
+    //est-ce que mon id correspond à une recette de la db ?
+    try {
+      const recipe = await Recipe2.findById(req.params.id);
+      if (!recipe) {
+        return res.json({ result: false, error: 'Recipe not found' });
+      }
+  
+      //Promise.all et map pour traiter tous les ingrédients en parallèle
+        //pour chaque ingrédient je cherche un ingrédient correspondant dans ingredient2
+      const updatedIngredients = await Promise.all(recipe.ing.map(async (ingredient) => {
+        const foundIngredient = await Ingredient2.findOne({
+          name: { $regex: new RegExp(`\\b${ingredient.ingredient}\\b`, "i") }
+        });
+  
+        //Si je trouve un ingrédient correspondant, je créé un objet qui mélange l'ingrédient original
+        //et le nouvel ID de l'ingrédient trouvé, sinon je ne modifie rien
+        if (foundIngredient) {
+          return {
+            ...ingredient.toObject(),
+            _id: foundIngredient._id
+          };
         }
-
-        {
-            res.json({result:true,data :data})
-           }
-    
-
-
-    })
-
-  })
-  // j'apppelle la route a qui j'ai donné l'id d'une recette
-
-    // je vérifie que le nom de l'ingrédient existe dans la table ingredients
-    // s'il existe je récupère son id , je l'écris dans la recette à la place du string ingredient
-
-
+        return ingredient;
+      }));
+  
+      //je remplace la liste d'ingrédient par la nouvelle, puis je save
+      recipe.ing = updatedIngredients;
+      await recipe.save();
+  
+      //je vérifie si tout s'est bien passé
+      res.json({ result: true, data: recipe });
+    } catch (error) {
+      console.error('Error transforming recipe:', error);
+      res.status(500).json({ result: false, error: 'Internal server error' });
+    }
+  });
 
   module.exports = router;
