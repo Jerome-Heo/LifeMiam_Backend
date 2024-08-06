@@ -12,8 +12,12 @@ var recipesRouter = require('./routes/recipes');
 var ingredientsRouter = require('./routes/ingredients');
 var menusRouter = require('./routes/menus');
 var shopRouter = require('./routes/shop');
+var adminRouter = require('./routes/admin');
 
+const fileUpload = require('express-fileupload');
 var app = express();
+
+app.use(fileUpload());
 
 const cors = require('cors');
 app.use(cors());
@@ -30,5 +34,6 @@ app.use('/recipes', recipesRouter);
 app.use('/ingredients', ingredientsRouter);
 app.use('/menus', menusRouter);
 app.use('/shop', shopRouter);
+app.use('/admin', adminRouter);
 
 module.exports = app;

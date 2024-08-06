@@ -7,6 +7,8 @@ const { checkBody } = require("../modules/checkBody");
 
 const URL = "http://localhost:3000";
 
+const uid2 = require('uid2');
+
 //LIST OF ALL MENU ROUTES:
 // 1 route to create a recipe for testing purposes, with all fields
 // POST/menus/new
@@ -71,5 +73,9 @@ router.get("/", function (req, res, next) {
   // console.log(req.query);
   // gerer les accents dans la recherche
 });
+
+
+
+
 
 module.exports = router;
