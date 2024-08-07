@@ -45,11 +45,29 @@ router.post("/create", (req, res) => {
   })
 });
 
-router.put("/:menuId/addRecipe/:recipeId", (req, res) => {
-  res.json({ result: "route PUT menu" });
+//ajouter une recette à un menu grâce à son id et son nombre de serving en req.body
+router.post("/:menuId/addRecipe", (req, res) => {
+  
+  const { recipeId, serving} = req.body;
+
+  Menu.findById(req.params.menuId)
+    .then(menu => {
+      if(!menu){
+        res.json({ result: false, error: 'pas de menu trouvé'})
+      }
+
+      const newRecipe = {recipe: recipeId, serving};
+      menu.menu_recipes.push(newRecipe);
+
+      return menu.save();
+    })
+    .then(updateMenu => {
+      res.json({result: true, menu: updateMenu})
+    })
+      
 });
 
-//Récupérer les menus
+//Récupérer les menus 
  router.get("/:token", function (req, res, next) {
   User.findOne({token: req.params.token})
   .then(user => {
@@ -59,8 +77,9 @@ router.put("/:menuId/addRecipe/:recipeId", (req, res) => {
     }
 
     Menu.find({owner: user._id})
+    .populate('menu_recipes.recipe')
     .then(menus =>{
-      res.json({ result: true, menus});
+      res.json({ menus });
     });
   });
 }); 
