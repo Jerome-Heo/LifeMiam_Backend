@@ -7,22 +7,21 @@ const { checkRegime } = require('../modules/checkRegime');
 
 // UID2
 const uid2 = require('uid2');
-// A redéfinir plus tard SERT d'exemple
 const token = uid2(32);
 
 // BCrypt
 const bcrypt = require('bcrypt');
-// A redéfinir plus tard SERT d'exemple
 const hash = bcrypt.hashSync('password', 10);
 
 // Sign In for the user
 router.post('/signin', (req, res) => {
-  if (!checkBody(req.body, ['username', 'password' ])) {
+  if (!checkBody(req.body, ['signin', 'password' ])) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
 
-  User.findOne({ username: req.body.username }).then(data => {
+  // We are looking to find a match for username or email in the database
+  User.findOne({ $or: [ {username: req.body.signin }, {email: req.body.signin} ] }).then(data => {
     if (data && bcrypt.compareSync(req.body.password, data.password)) {
       res.json({ result: true, token: data.token });
     } else {
@@ -44,12 +43,10 @@ router.post('/signup', (req, res) => {
     return;
   }
 
-  // Check if the user has not already been registered
-  User.findOne({ username: req.body.username }).then(data => {
+  // Check if the username and email has not already been registered
+  User.findOne({  $or: [ {username: req.body.username }, {email: req.body.email} ]}).then(data => {
     if (data === null) {
       const hash = bcrypt.hashSync(req.body.password, 10);
-
-      console.log(req.body.regime);
 
       const newUser = new User({
         username: req.body.username,
@@ -62,6 +59,7 @@ router.post('/signup', (req, res) => {
       });
 
       newUser.save().then(newDoc => {
+        // User added in the database
         res.json({ result: true, token: newDoc.token });
       });
     } else {
