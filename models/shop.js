@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const ingredientsSchema = mongoose.Schema({
     name: String,
+    unit: String,
     quantity: Number,
     category: String,
 })
@@ -10,7 +11,7 @@ const ingredientsSchema = mongoose.Schema({
 const shopSchema = new Schema({
 
     user_id: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
-    recipe: { type: mongoose.Schema.Types.ObjectId, ref: "recipes" },
+    menu: { type: mongoose.Schema.Types.ObjectId, ref: "menus" },
     Ingredients: { ingredientsSchema }
 })
 

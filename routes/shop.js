@@ -15,12 +15,12 @@ const URL = "http://localhost:3000";
 //rechercher le menu avec le menu_id
 //comparer le user_id à l'owner (au propriétaire) du menu
 //async await parce que 2 requêtes en même temps
-const userLoggin = async (req, res) => {
-  const token = req.headers['authorization'];
-  if (!token) {
-    return res.status(401).json({ error: 'Token manquant' });
-  }
-}
+// const userLoggin = async (req, res) => {
+//   const token = req.headers['authorization'];
+//   if (!token) {
+//     return res.status(401).json({ error: 'Token manquant' });
+//   }
+// }
 //SI l'user_id = owner je récupère les recettes du menu
 //Je récupère le tableau des recettes du menu
 // Nouvelle variable const ou let = []
