@@ -3,6 +3,7 @@ var router = express.Router();
 
 const Menu = require("../models/menus");
 const { checkBody } = require("../modules/checkBody");
+const User = require("../models/users");
 
 const URL = "http://localhost:3000";
 
@@ -20,17 +21,48 @@ const URL = "http://localhost:3000";
 // POST/menus
 // required: user token in req.body
 
-router.post("/new", (req, res) => {
-  res.json({ result: "route POST menu" });
+//Route pour créer un menu, nécéssite req.body.name et rew.body.token
+router.post("/create", (req, res) => {
+  if(!checkBody(req.body,['token', 'name'])){
+    res.json({ result: false, error: 'Missing or empty fields'});
+    return;
+  }
+
+  User.findOne({ token: req.body.token }).then(user =>{
+    if (user === null) {
+      res.json({ result: false, error: 'User not found'});
+      return;
+    }
+
+    const newMenu = new Menu({
+      name: req.body.name,
+      owner: user._id
+    })
+
+    newMenu.save().then(newDoc => {
+      res.json({ result: true, menu: newDoc})
+    })
+  })
 });
 
-router.put("/:menuId", (req, res) => {
+router.put("/:menuId/addRecipe/:recipeId", (req, res) => {
   res.json({ result: "route PUT menu" });
 });
 
-/* GET recipes listing with parameters. */
-router.get("/", function (req, res, next) {
-  res.send("respond with a resource");
-});
+//Récupérer les menus
+ router.get("/:token", function (req, res, next) {
+  User.findOne({token: req.params.token})
+  .then(user => {
+    if(user===null){
+      res.json({ result: false, error: 'User not found'});
+      return;
+    }
+
+    Menu.find({owner: user._id})
+    .then(menus =>{
+      res.json({ result: true, menus});
+    });
+  });
+}); 
 
 module.exports = router;

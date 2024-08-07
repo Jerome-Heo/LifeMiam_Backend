@@ -14,6 +14,7 @@ const menusSchema = mongoose.Schema({
   is_archived: { type: Boolean, default: false },
   date_created: { type: Date, default: Date.now },
   menu_recipes: [menuRecipeSchema],
+  owner: { type: mongoose.Schema.Types.ObjectId, ref: 'users'}
 });
 
 const Menu = mongoose.model("menus", menusSchema);
