@@ -8,7 +8,7 @@ const ingredientsSchema = mongoose.Schema({
 })
 
 
-const shopSchema = new Schema({
+const shopSchema = mongoose.Schema({
 
     user_id: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
     menu: { type: mongoose.Schema.Types.ObjectId, ref: "menus" },
