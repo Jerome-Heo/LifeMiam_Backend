@@ -22,6 +22,7 @@ const URL = "http://localhost:3000";
 // required: user token in req.body
 
 //Route pour créer un menu, nécéssite req.body.name et rew.body.token
+//${URL}/menus/create
 router.post("/create", (req, res) => {
   if(!checkBody(req.body,['token', 'name'])){
     res.json({ result: false, error: 'Missing or empty fields'});
@@ -45,7 +46,8 @@ router.post("/create", (req, res) => {
   })
 });
 
-//ajouter une recette à un menu grâce à son id et son nombre de serving en req.body
+//ajouter une recette à un menu grâce à son id et son nombre de serving en req.body 
+//${URL}/menus/${menuId}/addRecipe
 router.post("/:menuId/addRecipe", (req, res) => {
   
   const { recipeId, serving} = req.body;
@@ -68,6 +70,7 @@ router.post("/:menuId/addRecipe", (req, res) => {
 });
 
 //Récupérer les menus 
+//${URL}/menus/${token}
  router.get("/:token", function (req, res, next) {
   User.findOne({token: req.params.token})
   .then(user => {
@@ -83,5 +86,24 @@ router.post("/:menuId/addRecipe", (req, res) => {
     });
   });
 }); 
+
+//Récupérer un seul menu par son id 
+//${URL}/menus/${menuId}/${token}
+router.get("/:menuId/:token", function (req,res){
+  User.findOne({token: req.params.token})
+  .then(user => {
+    if(user===null){
+      res.json({result: false, error: 'user not found'})
+      return;
+    }
+
+    Menu.findById(req.params.menuId)
+      .populate('menu_recipes.recipe')
+      .then(menu => {
+        res.json({menu})
+      });
+  })
+ 
+})
 
 module.exports = router;
