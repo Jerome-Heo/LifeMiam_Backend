@@ -61,6 +61,7 @@ router.post("/update", (req, res) => {
     }
   });
 });
+//console.log("coucou")
 
 router.post("/signup", (req, res) => {
   // We check if username / email / password is empty
