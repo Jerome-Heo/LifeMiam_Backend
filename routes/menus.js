@@ -82,7 +82,7 @@ router.post("/:menuId/addRecipe", (req, res) => {
     Menu.find({owner: user._id})
     .populate('menu_recipes.recipe')
     .then(menus =>{
-      res.json({ menus });
+      res.json(menus);
     });
   });
 }); 
