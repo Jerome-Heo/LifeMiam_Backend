@@ -13,6 +13,11 @@ const token = uid2(32);
 const bcrypt = require("bcrypt");
 const hash = bcrypt.hashSync("password", 10);
 
+// ALL Routes available here:
+// Signin
+// Signup
+// Update (regime)
+
 // Sign In for the user
 router.post("/signin", (req, res) => {
   if (!checkBody(req.body, ["signin", "password"])) {
@@ -25,43 +30,12 @@ router.post("/signin", (req, res) => {
     $or: [{ username: req.body.signin }, { email: req.body.signin }],
   }).then((data) => {
     if (data && bcrypt.compareSync(req.body.password, data.password)) {
-      res.json({ result: true, token: data.token });
+      res.json({ result: true, token: data.token, regime: data.regime });
     } else {
       res.json({ result: false, error: "User not found or wrong password" });
     }
   });
 });
-
-router.post("/update", (req, res) => {
-  if (!checkBody(req.body, ["token"])) {
-    res.json({ result: false, error: "Missing or empty fields" });
-    return;
-  }
-  if (!checkRegime(req.body.regime)) {
-    res.json({ result: false, error: "Wrong regime fields" });
-    return;
-  }
-
-  User.findOne({ token: req.body.token }).then((data) => {
-    if (data) {
-      User.updateOne(
-        { token: req.body.token },
-        { regime: req.body.regime }
-      ).then((result) => {
-        result.modifiedCount >= 1
-          ? res.json({ result: true })
-          : res.json({
-              result: false,
-              error: "User document found, no update needed",
-              data,
-            });
-      });
-    } else {
-      res.json({ result: false, error: "User not found" });
-    }
-  });
-});
-//console.log("coucou")
 
 router.post("/signup", (req, res) => {
   // We check if username / email / password is empty
@@ -70,7 +44,7 @@ router.post("/signup", (req, res) => {
     return;
   }
 
-  // We check if regime is matching our value (on a string or an object)
+  // We check if regime is matching our values (on a string or an object)
   if (!checkRegime(req.body.regime)) {
     res.json({ result: false, error: "Wrong regime fields" });
     return;
@@ -95,7 +69,7 @@ router.post("/signup", (req, res) => {
 
       newUser.save().then((newDoc) => {
         // User added in the database
-        res.json({ result: true, token: newDoc.token });
+        res.json({ result: true, token: newDoc.token, regime: newDoc.regime });
       });
     } else {
       // User already exists in database
@@ -104,6 +78,36 @@ router.post("/signup", (req, res) => {
   });
 });
 
-// Test git
+// Updating regime user
+router.post("/update", (req, res) => {
+  if (!checkBody(req.body, ["token"])) {
+    res.json({ result: false, error: "Missing or empty fields" });
+    return;
+  }
+  // We check if regime is matching our values (on a string or an object)
+  if (!checkRegime(req.body.regime)) {
+    res.json({ result: false, error: "Wrong regime fields" });
+    return;
+  }
+  // We check if the user has a token to modify regime
+  User.findOne({ token: req.body.token }).then((data) => {
+    if (data) {
+      User.updateOne(
+        { token: req.body.token },
+        { regime: req.body.regime }
+      ).then((result) => {
+        result.modifiedCount >= 1
+          ? res.json({ result: true })
+          : res.json({
+              result: false,
+              error: "User document found, no update needed",
+              data,
+            });
+      });
+    } else {
+      res.json({ result: false, error: "User not found" });
+    }
+  });
+});
 
 module.exports = router;
