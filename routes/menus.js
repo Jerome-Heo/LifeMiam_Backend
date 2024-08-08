@@ -70,9 +70,14 @@ router.post("/:menuId/addRecipe", (req, res) => {
 });
 
 //Récupérer les menus 
-//${URL}/menus/${token}
- router.get("/:token", function (req, res, next) {
-  User.findOne({token: req.params.token})
+//${URL}/menus/getMenus
+ router.post("/getMenus", function (req, res, next) {
+  
+  if(!req.body.token){
+    res.json({result: false, error: 'Token manquant'})
+ }
+
+  User.findOne({token: req.body.token})
   .then(user => {
     if(user===null){
       res.json({ result: false, error: 'User not found'});
@@ -88,9 +93,14 @@ router.post("/:menuId/addRecipe", (req, res) => {
 }); 
 
 //Récupérer un seul menu par son id 
-//${URL}/menus/${menuId}/${token}
-router.get("/:menuId/:token", function (req,res){
-  User.findOne({token: req.params.token})
+//${URL}/menus/${menuId}
+router.post("/:menuId", function (req,res){
+
+  if(!req.body.token){
+    res.json({result: false, error: 'Token manquant'})
+  }
+
+  User.findOne({token: req.body.token})
   .then(user => {
     if(user===null){
       res.json({result: false, error: 'user not found'})
