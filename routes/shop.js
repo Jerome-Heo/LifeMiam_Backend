@@ -11,58 +11,71 @@ const User = require("../models/users");
 //pré requis: besoin d'un token pour obtenir le user_id et le menu_id, 
 
 
+router.get('/generate', async (req, res) => {
 //rechercher le user_id grâce au token
-User.findOne({ token: req.body.token }).then(user => {
-    if (user === null) {
-        res.json({ result: false, error: 'User not found' });
-        return;
-    }
-})
+// User.findOne({ token: req.body.token }).then(user => {
+//     if (user === null) {
+//         res.json({ result: false, error: 'User not found' });
+//         return;
+//     }
+// })
 
-//rechercher le menu avec le menu_id
-Menu.findById(req.params.menuId)
-    .then(menu => {
-        if (!menu) {
-            res.json({ result: false, error: 'pas de menu trouvé' })
-        }
-    })
+const user = await User.findOne({ token: req.body.token })
+if (user === null) {
+    res.json({ result: false, error: 'User not found' });
+    return;
+}
+else
+{
+    res.json({ result: true, message: user });
 
-// Nouvelle variable const ou let = []
-const recipes = Menu.recipes;
-let ingredientsList = [];
-
-//Boucler sur le tableau des recettes (FOR) 
-for (let i = 0; i < recipes.length; i++) {
-    const recipe = recipes[i].recipe;
-    recipe.ingredients.forEach(ingredient => {
-        //Récupérer les ingrédients de la recette []
-        //Pour chacun d'entre eux, récupérer le nom, l'unité, sa quantité et sa catégorie
-        //A la sortie, la réponse ressemblera à [{name: "pomme", unit: "unité", quantity: 3, category: "fruits"}]
-        ingredientsList.push({
-            name: ingredient.name,
-            unit: ingredient.unit,
-            quantity: ingredient.quantity,
-            category: ingredient.category,
-        });
-    });
-    console.log(ingredientsList)
 }
 
+// //rechercher le menu avec le menu_id
+// Menu.findById(req.params.menuId)
+//     .then(menu => {
+//         if (!menu) {
+//             res.json({ result: false, error: 'pas de menu trouvé' })
+//         }
+//     })
 
-router.get('/ingredients', async (req, res) => {
-    if (!checkBody(req.body, ['token', 'name'])) {
-        res.json({ result: false, error: 'Missing or empty fields' });
-        return;
-    }
-});
+// // Nouvelle variable const ou let = []
+// const recipes = Menu.recipes;
+// let ingredientsList = [];
+
+// //Boucler sur le tableau des recettes (FOR) 
+// for (let i = 0; i < recipes.length; i++) {
+//     const recipe = recipes[i].recipe;
+//     recipe.ingredients.forEach(ingredient => {
+//         //Récupérer les ingrédients de la recette []
+//         //Pour chacun d'entre eux, récupérer le nom, l'unité, sa quantité et sa catégorie
+//         //A la sortie, la réponse ressemblera à [{name: "pomme", unit: "unité", quantity: 3, category: "fruits"}]
+//         ingredientsList.push({
+//             name: ingredient.name,
+//             unit: ingredient.unit,
+//             quantity: ingredient.quantity,
+//             category: ingredient.category,
+//         });
+//     });
+//     console.log(ingredientsList)
+// }
+
+})
+
+// router.get('/ingredients', async (req, res) => {
+//     if (!checkBody(req.body, ['token', 'name'])) {
+//         res.json({ result: false, error: 'Missing or empty fields' });
+//         return;
+//     }
+// });
 
 //comparer le user_id à l'owner du menu
-Menu.find({ owner: User._id, menu_id: Menu.id })
-    .populate('menu_recipes.recipe')
-    //SI l'user_id = owner je récupère les recettes du menu
-    .then(menus => {
-        res.json({ menus });
-    });
+// Menu.find({ owner: User._id, menu_id: Menu.id })
+//     .populate('menu_recipes.recipe')
+//     //SI l'user_id = owner je récupère les recettes du menu
+//     .then(menus => {
+//         res.json({ menus });
+//     });
 
 
 
