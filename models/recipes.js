@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
 
 const ingredientsSchema = mongoose.Schema({
-  _id: { type: mongoose.Schema.Types.ObjectId, ref: "recipes" },
+  ingredient: { type: mongoose.Schema.Types.ObjectId, ref: "ingredients" },
   quantity: Number, //should support null value
+  
 });
 
 const recipesSchema = mongoose.Schema({

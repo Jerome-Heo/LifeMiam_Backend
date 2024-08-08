@@ -5,7 +5,8 @@ const ingredientsSchema = mongoose.Schema({
     name: String,
     unit: {type : String, enum: ['cl', 'grammes', 'unités','litres','feuilles','cuillères à café','gousses']},
     category: String,
-    regime: {type : String, enum: ['vegan', 'lactose-free', 'arachid-free']}
+    regime: {type : [String]}
+
 })
 
 const Ingredient = mongoose.model('ingredients', ingredientsSchema);

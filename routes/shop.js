@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const Shop = require("../models/shop")
 const { checkBody } = require('../modules/checkBody');
+const { addIngredients } = require("../modules/addIngredients");
 const Menu = require("../models/menus");
 const User = require("../models/users");
 
@@ -9,35 +10,101 @@ const User = require("../models/users");
 
 // Route pour récupérer les ingrédients des recettes contenus dans un menu pour alimenter la liste de courses (ListScreen)
 //pré requis: besoin d'un token pour obtenir le user_id et le menu_id, 
-
-
-router.get('/generate', async (req, res) => {
-//rechercher le user_id grâce au token
-// User.findOne({ token: req.body.token }).then(user => {
-//     if (user === null) {
-//         res.json({ result: false, error: 'User not found' });
-//         return;
-//     }
-// })
-
+//token     wVL5sCx7YTgaO-fnxK5pX4mMG8JywAwQ
+// menu    66b4953aac86d4086b49267a
+// /shop/generate/
+router.get('/generate/:menuId', async (req, res) => {
 const user = await User.findOne({ token: req.body.token })
 if (user === null) {
     res.json({ result: false, error: 'User not found' });
     return;
 }
-else
-{
-    res.json({ result: true, message: user });
+//rechercher le menu avec le menu_id
+Menu.findById(req.params.menuId)
+.populate({
+    path: 'menu_recipes.recipe',
+    populate:  { path: 'ing.ingredient'  }
+  })
+.then(menu => {
+        if (!menu) {
+            res.json({ result: false, error: 'pas de menu trouvé' })
+        }
+        if (menu) { 
+            let ingredientsList=[]
 
+            if (!menu.menu_recipes) {
+                res.json({ result: false, error: 'pas de recettes trouvées' })
+            }
+            if(menu.menu_recipes)
+            {
+            for (recipe of menu.menu_recipes)
+            {
+                if (!recipe.recipe.ing) 
+                {
+                    res.json({ result: false, error: 'pas d\'ingrédients trouvé' })
+                }
+                if (recipe.recipe.ing) 
+                {
+ 
+                for (ingredient of recipe.recipe.ing)
+                {
+                    ingredientsList.push(
+                        {
+                            name: ingredient.ingredient.name, 
+                            unit:ingredient.ingredient.unit, 
+                            quantity: ingredient.quantity*recipe.serving, 
+                            category: ingredient.ingredient.category
+                        }
+                        )
+                }
+                }  
+            }
+            let list=addIngredients(ingredientsList)
+            res.json({ result: true, data: list })
+        }
+           
+        }
+    })
+
+
+
+
+    /*
+    *
+    function groupsCount(users){
+    let count = {};
+  
+    // Insert your code here
+    let cities=[]
+    
+    users.filter((element) => cities.push(element.city))
+    cities=cities.filter(function(item, pos, ary) {
+        return !pos || item != ary[pos - 1];
+    });
+  
+    for(let city of cities)
+    {
+        users.filter((element,i) => element.city == city ? count[city]= count[city] === count[city] ? (count[city]) + 1 : null : null)
+    }
+    
+ 
+    //console.log(cities)
+    return count;
 }
+ 
+const usersExample = [
+    {name: 'Pierre', city: 'Paris'},
+    {name: 'Paul', city: 'Lyon'},
+    {name: 'Jacques', city: 'Paris'},
+    {name: 'Julie', city: 'Grenoble'},
+    {name: 'Quentin', city: 'Orléans'},
+    {name: 'Emma', city: 'Grenoble'}
+];
+console.log(JSON.stringify(groupsCount(usersExample)));
+// Expected: {"Paris":2,"Lyon":1,"Grenoble":2,"Orléans":1}
+**/
 
-// //rechercher le menu avec le menu_id
-// Menu.findById(req.params.menuId)
-//     .then(menu => {
-//         if (!menu) {
-//             res.json({ result: false, error: 'pas de menu trouvé' })
-//         }
-//     })
+
 
 // // Nouvelle variable const ou let = []
 // const recipes = Menu.recipes;
