@@ -13,7 +13,7 @@ const User = require("../models/users");
 //token     wVL5sCx7YTgaO-fnxK5pX4mMG8JywAwQ
 // menu    66b4953aac86d4086b49267a
 // /shop/generate/
-router.get('/generate/:menuId', async (req, res) => {
+router.post('/generate/:menuId', async (req, res) => {
 const user = await User.findOne({ token: req.body.token })
 if (user === null) {
     res.json({ result: false, error: 'User not found' });
@@ -48,6 +48,7 @@ Menu.findById(req.params.menuId)
  
                 for (ingredient of recipe.recipe.ing)
                 {
+                    console.log(ingredient)
                     ingredientsList.push(
                         {
                             name: ingredient.ingredient.name, 
