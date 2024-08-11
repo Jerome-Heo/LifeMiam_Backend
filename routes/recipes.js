@@ -21,11 +21,18 @@ const uid2 = require("uid2");
 router.get(
   "/",
   function (req, res, next) {
-    const { sortBy = "popularity", search = "", tags = null } = req.query;
+    const { sortBy = "popularity", search = "", tags } = req.query;
     let queryFilters = {};
-    if (tags) {
-      queryFilters.tags = { $all: JSON.parse(tags) };
+    console.log("req.query:", req.query);
+    if (req.query.tags) {
+      let tags_parse = JSON.parse(req.query.tags);
+
+      if (tags_parse.length > 0) {
+        queryFilters.tags = { $all: tags_parse };
+      }
     }
+
+    console.log("queryFilters:", queryFilters);
     if (search) {
       const decodedSearch = decodeURIComponent(search);
       queryFilters.name = { $regex: new RegExp(decodedSearch, "gi") };
