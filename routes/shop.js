@@ -48,15 +48,18 @@ Menu.findById(req.params.menuId)
  
                 for (ingredient of recipe.recipe.ing)
                 {
-                    console.log(ingredient)
+                   if (ingredient.ingredient)
+                   {
                     ingredientsList.push(
                         {
                             name: ingredient.ingredient.name, 
-                            unit:ingredient.ingredient.unit, 
+                            unit:ingredient.unit, 
                             quantity: ingredient.quantity*recipe.serving, 
-                            category: ingredient.ingredient.category
+                            category: ingredient.category
                         }
                         )
+                   }
+                  
                 }
                 }  
             }
