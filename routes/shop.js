@@ -53,9 +53,9 @@ Menu.findById(req.params.menuId)
                     ingredientsList.push(
                         {
                             name: ingredient.ingredient.name, 
-                            unit:ingredient.unit, 
+                            unit: ingredient.ingredient.unit, 
                             quantity: ingredient.quantity*recipe.serving, 
-                            category: ingredient.category
+                            category: ingredient.ingredient.category
                         }
                         )
                    }
