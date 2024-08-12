@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const ingredientsSchema2 = mongoose.Schema({
   ingredient: String,
+  _id: { type: mongoose.Schema.Types.ObjectId, ref: "ingredients" },
   quantity: Number, //should support null value
 });
 
