@@ -66,7 +66,7 @@ router.get("/:recipeId/:token", (req, res) => {
   });
 
   Recipe.findById(req.params.recipeId)
-    .populate("ingredient", ["name", "unit", "_id"])
+    .populate("_id", ["name", "unit", "_id"])
     .then((data) => {
       data
         ? res.json({ result: true, data })
