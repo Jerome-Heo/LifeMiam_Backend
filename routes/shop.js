@@ -18,6 +18,31 @@ router.post('/getlist/:menuId', async (req, res) => {
     .then((data ) => {
         if(data)
         {
+            res.json({result:true,id: data.id,data:data})
+            console.log(data)
+        }
+        else
+        {
+            res.json({result:false,error:'Pas de liste associée à ce menu'})
+            console.log(data)
+        }
+        
+        
+    })
+})
+
+/** route permettant d'afficher une liste de course par id et token */
+router.put('/updatelist/:menuId', async (req, res) => {
+    const user = await User.findOne({ token: req.body.token })
+    if (user === null) {
+        res.json({ result: false, error: 'User not found' });
+        return;
+    }
+    Shop.findOneAndUpdate(req.params.shopId,{Ingredients : req.body.ingredients} )
+
+    .then((data ) => {
+        if(data)
+        {
             res.json({result:true,data:data})
             console.log(data)
         }
@@ -30,6 +55,7 @@ router.post('/getlist/:menuId', async (req, res) => {
         
     })
 })
+
 
 // Route pour récupérer les ingrédients des recettes contenus dans un menu pour alimenter la liste de courses (ListScreen)
 //pré requis: besoin d'un token pour obtenir le user_id et le menu_id, 
@@ -98,7 +124,7 @@ Menu.findById(req.params.menuId)
             shoplist.save().then(
                 (data) => {
                     console.log(list)
-                    res.json({ result: true, data: list })
+                    res.json({ result: true,id: data.id, data: list })
                 }
             )
 
