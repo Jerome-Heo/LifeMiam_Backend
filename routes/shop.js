@@ -6,7 +6,30 @@ const { addIngredients } = require("../modules/addIngredients");
 const Menu = require("../models/menus");
 const User = require("../models/users");
 
-//je dois écrire des routes dans un ficher "shop.js" pour que les ingrédients des recettes de ma BDD apparaissent sur l'écran "ListScreen"
+
+/** route permettant d'afficher une liste de course par id et token */
+router.post('/getlist/:menuId', async (req, res) => {
+    const user = await User.findOne({ token: req.body.token })
+    if (user === null) {
+        res.json({ result: false, error: 'User not found' });
+        return;
+    }
+    Shop.findOne({menu : req.params.menuId})
+    .then((data ) => {
+        if(data)
+        {
+            res.json({result:true,data:data})
+            console.log(data)
+        }
+        else
+        {
+            res.json({result:false,error:'Pas de liste associée à ce menu'})
+            console.log(data)
+        }
+        
+        
+    })
+})
 
 // Route pour récupérer les ingrédients des recettes contenus dans un menu pour alimenter la liste de courses (ListScreen)
 //pré requis: besoin d'un token pour obtenir le user_id et le menu_id, 
@@ -55,7 +78,8 @@ Menu.findById(req.params.menuId)
                             name: ingredient.ingredient.name, 
                             unit: ingredient.ingredient.unit, 
                             quantity: ingredient.quantity*recipe.serving, 
-                            category: ingredient.ingredient.category
+                            category: ingredient.ingredient.category,
+                            recipe:recipe.recipe._id
                         }
                         )
                    }
@@ -63,8 +87,22 @@ Menu.findById(req.params.menuId)
                 }
                 }  
             }
+        
             let list=addIngredients(ingredientsList)
-            res.json({ result: true, data: list })
+
+            let shoplist= new Shop({
+                user_id: user._id,
+                menu: req.params.menuId,
+                Ingredients:  list
+            })
+            shoplist.save().then(
+                (data) => {
+                    console.log(list)
+                    res.json({ result: true, data: list })
+                }
+            )
+
+          
         }
            
         }
