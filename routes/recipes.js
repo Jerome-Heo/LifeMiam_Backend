@@ -55,6 +55,13 @@ router.get(
   // gerer les whitespaces : hyphens? +?
 );
 
+router.get("/all", (req, res) => { 
+  Recipe.find().then((data) =>
+  {
+    res.json({result: true, data});
+  })
+});
+
 // GET one recipe to display
 router.get("/:recipeId/:token", (req, res) => {
   User.findOne({ token: req.params.token }).then((user) => {
