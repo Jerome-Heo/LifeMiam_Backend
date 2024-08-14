@@ -32,7 +32,7 @@ router.post("/signin", (req, res) => {
     if (data && bcrypt.compareSync(req.body.password, data.password)) {
       res.json({ result: true, token: data.token, regime: data.regime });
     } else {
-      res.json({ result: false, error: "User not found or wrong password" });
+      res.json({ result: false, error: "Utilisateur inexistant ou mot de passe erroné" });
     }
   });
 });
@@ -40,13 +40,13 @@ router.post("/signin", (req, res) => {
 router.post("/signup", (req, res) => {
   // We check if username / email / password is empty
   if (!checkBody(req.body, ["username", "email", "password"])) {
-    res.json({ result: false, error: "Missing or empty fields" });
+    res.json({ result: false, error: "Champ manquant ou vide" });
     return;
   }
 
   // We check if regime is matching our values (on a string or an object)
   if (!checkRegime(req.body.regime)) {
-    res.json({ result: false, error: "Wrong regime fields" });
+    res.json({ result: false, error: "Champ régime inconnu" });
     return;
   }
 
@@ -73,7 +73,7 @@ router.post("/signup", (req, res) => {
       });
     } else {
       // User already exists in database
-      res.json({ result: false, error: "User already exists" });
+      res.json({ result: false, error: "cet utilisateur existe déja" });
     }
   });
 });
@@ -81,12 +81,12 @@ router.post("/signup", (req, res) => {
 // Updating regime user
 router.post("/update", (req, res) => {
   if (!checkBody(req.body, ["token"])) {
-    res.json({ result: false, error: "Missing or empty fields" });
+    res.json({ result: false, error: "Champ manquant ou vide" });
     return;
   }
   // We check if regime is matching our values (on a string or an object)
   if (!checkRegime(req.body.regime)) {
-    res.json({ result: false, error: "Wrong regime fields" });
+    res.json({ result: false, error: "Champ régime inconnu" });
     return;
   }
   // We check if the user has a token to modify regime
@@ -100,12 +100,12 @@ router.post("/update", (req, res) => {
           ? res.json({ result: true })
           : res.json({
               result: false,
-              error: "User document found, no update needed",
+              error: "Régime non présent en base de données",
               data,
             });
       });
     } else {
-      res.json({ result: false, error: "User not found" });
+      res.json({ result: false, error: "Utilisateur inexistant" });
     }
   });
 });
