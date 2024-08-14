@@ -18,6 +18,7 @@ const uid2 = require("uid2");
 // optional: recipeId, serving if not empty: add the recipe to the menu newly created
 
 /* GET recipes listing with parameters. */
+// ${URL}/recipes/
 router.get(
   "/",
   function (req, res, next) {
@@ -45,7 +46,7 @@ router.get(
     }).then((data) => {
       data.length > 0
         ? res.json({ result: true, count: data.length, data })
-        : res.json({ result: false, error: "Cannot find popular recipes" });
+        : res.json({ result: false, error: "Impossible de trouver des recettes populaires" });
     });
     return;
   }
@@ -54,7 +55,7 @@ router.get(
   // gerer les accents dans la recherche
   // gerer les whitespaces : hyphens? +?
 );
-
+// ${URL}/recipes/all
 router.get("/all", (req, res) => { 
   Recipe.find().then((data) =>
   {
@@ -63,11 +64,12 @@ router.get("/all", (req, res) => {
 });
 
 // GET one recipe to display
+// ${URL}/recipes/:recipeId/:token
 router.get("/:recipeId/:token", (req, res) => {
   User.findOne({ token: req.params.token }).then((user) => {
     // console.log(req.query);
     if (user === null) {
-      res.json({ result: false, error: "User not found" });
+      res.json({ result: false, error: "Utilisateur introuvable" });
     }
     return;
   });
@@ -80,7 +82,7 @@ router.get("/:recipeId/:token", (req, res) => {
       // console.log("populate", data.ing.ingredient);
       data
         ? res.json({ result: true, data })
-        : res.json({ result: false, error: "Recipe not found" });
+        : res.json({ result: false, error: "Recette introuvable" });
     });
 });
 

@@ -21,17 +21,17 @@ const URL = "http://localhost:3000";
 // POST/menus
 // required: user token in req.body
 
-//Route pour créer un menu, nécéssite req.body.name et rew.body.token
-//${URL}/menus/create
+// Route pour créer un menu, nécéssite req.body.name et req.body.token
+// ${URL}/menus/create
 router.post("/create", (req, res) => {
   if(!checkBody(req.body,['token', 'name'])){
-    res.json({ result: false, error: 'Missing or empty fields'});
+    res.json({ result: false, error: 'Champs manquants ou vides'});
     return;
   }
 
   User.findOne({ token: req.body.token }).then(user =>{
     if (user === null) {
-      res.json({ result: false, error: 'User not found'});
+      res.json({ result: false, error: 'Utilisateur inexistant'});
       return;
     }
 
@@ -46,8 +46,8 @@ router.post("/create", (req, res) => {
   })
 });
 
-//ajouter une recette à un menu grâce à son id et son nombre de serving en req.body 
-//${URL}/menus/${menuId}/addRecipe
+// Ajouter une recette à un menu grâce à son id et son nombre de serving en req.body 
+// ${URL}/menus/${menuId}/addRecipe
 router.post("/:menuId/addRecipe", (req, res) => {
   
   const { recipeId, serving} = req.body;
@@ -55,7 +55,7 @@ router.post("/:menuId/addRecipe", (req, res) => {
   Menu.findById(req.params.menuId)
     .then(menu => {
       if(!menu){
-        res.json({ result: false, error: 'pas de menu trouvé'})
+        res.json({ result: false, error: 'Pas de menu trouvé'})
       }
 
       const newRecipe = {recipe: recipeId, serving};
@@ -69,8 +69,8 @@ router.post("/:menuId/addRecipe", (req, res) => {
       
 });
 
-//Récupérer les menus 
-//${URL}/menus/getMenus
+// Récupérer les menus 
+// ${URL}/menus/getMenus
  router.post("/getMenus", function (req, res, next) {
   
   if(!req.body.token){
@@ -92,8 +92,8 @@ router.post("/:menuId/addRecipe", (req, res) => {
   });
 }); 
 
-//Récupérer un seul menu par son id 
-//${URL}/menus/${menuId}
+// Récupérer un seul menu par son id 
+// ${URL}/menus/${menuId}
 router.post("/:menuId", function (req,res){
 
   if(!req.body.token){

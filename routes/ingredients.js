@@ -6,9 +6,10 @@ const { checkBody } = require('../modules/checkBody');
 
 
 /* GET ingredient by id */
+// ${URL}/ingredients/:id
  router.get('/:id', function(req, res) {
    if (!checkBody(req.params, ['id'])) {
-     res.json({ result: false, error: 'Missing or empty fields' });
+     res.json({ result: false, error: 'Champ manquant ou vide' });
      return;
    }
   let id=Number(req.params.id)
@@ -27,9 +28,10 @@ const { checkBody } = require('../modules/checkBody');
   
  });
 
+ // ${URL}/ingredients/category/:category
 router.get('/category/:category', function(req, res) {
   if (!checkBody(req.params, ['category'])) {
-        res.json({ result: false, error: 'Missing or empty fields' });
+        res.json({ result: false, error: 'Champ manquant ou vide' });
         return;
       }
 
@@ -51,11 +53,11 @@ router.get('/category/:category', function(req, res) {
 
 });
 
-
+// ${URL}/ingredients/regime/:regime
 router.get('/regime/:regime', function(req, res) {
 
   if (!checkBody(req.params, ['regime'])) {
-    res.json({ result: false, error: 'Missing or empty fields' });
+    res.json({ result: false, error: 'Champ manquant ou vide' });
     return;
   }
   let regime = decodeURI(req.params.regime)

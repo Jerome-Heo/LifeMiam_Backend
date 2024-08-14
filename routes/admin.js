@@ -15,7 +15,7 @@ const uid2 = require('uid2');
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
 
-
+// ${URL}/admin/all
 router.get("/all", function (req, res, next) {
     Recipe.find({})
     .then((data)=>{
@@ -27,6 +27,7 @@ router.get("/all", function (req, res, next) {
 /*
 * route d'edition pour pouvoir editer les images
 */
+// ${URL}/admin/addpicture
 router.post("/addpicture", async (req, res) => {
     const uniqid = uid2(16);
     const photoPath = `./tmp/${uniqid}.jpg`;
@@ -34,8 +35,8 @@ router.post("/addpicture", async (req, res) => {
   
      const resultMove = await req.files.file.mv(photoPath);
   
-    // récupérer les datas
-    // ajouter l'image a cloudinary
+    // Récupérer les datas
+    // Ajouter l'image a cloudinary
     if (!resultMove) 
     {
         const resultCloudinary = await cloudinary.uploader.upload(photoPath);
@@ -52,7 +53,7 @@ router.post("/addpicture", async (req, res) => {
   /*
   * édition de la recette 
   */
-
+  // ${URL}/admin/edit
   router.put("/edit", async (req, res) => {
 
     if (req.body.image.includes('cloudinary'))
@@ -82,23 +83,24 @@ router.post("/addpicture", async (req, res) => {
   * route qui permet de transformer les ingrédients en string d'une recette en objectIds
   */
 
- //Je vais chercher une recette par son id
+ // Je vais chercher une recette par son id
+ // ${URL}/admin/transformallrecipes/:id
   router.get("/transformrecipe/:id", async (req, res) => {
 
-    //est-ce que mon id est correctement renseignée ?
+    // Est-ce que mon id est correctement renseignée ?
     if (!req.params.id) {
-      return res.json({ result: false, error: 'Missing or empty id field' });
+      return res.json({ result: false, error: "Champs d'identification manquants ou vides" });
     }
   
-    //est-ce que mon id correspond à une recette de la db ?
+    // Est-ce que mon id correspond à une recette de la db ?
     try {
       const recipe = await Recipe2.findById(req.params.id);
       if (!recipe) {
-        return res.json({ result: false, error: 'Recipe not found' });
+        return res.json({ result: false, error: 'Recette introuvable' });
       }
   
-      //Promise.all et map pour traiter tous les ingrédients en parallèle
-        //pour chaque ingrédient je cherche un ingrédient correspondant dans ingredient2
+      // Promise.all et map pour traiter tous les ingrédients en parallèle
+        // pour chaque ingrédient je cherche un ingrédient correspondant dans ingredient2
       const updatedIngredients = await Promise.all(recipe.ing.map(async (ingredient) => {
         const foundIngredient = await Ingredient.findOne({
           name: { $regex: new RegExp(`\\b${ingredient.ingredient}\\b`, "gi") }
@@ -109,7 +111,7 @@ router.post("/addpicture", async (req, res) => {
         //Si je trouve un ingrédient correspondant, je créé un objet qui mélange l'ingrédient original
         //et le nouvel ID de l'ingrédient trouvé, sinon je ne modifie rien
         if (foundIngredient) {
-          console.log(foundIngredient,'trouvé')
+          console.log(foundIngredient,' Trouvé')
           return {
             ...ingredient.toObject(),
             _id: foundIngredient._id,
@@ -118,7 +120,7 @@ router.post("/addpicture", async (req, res) => {
         }
         else
         {
-          console.log(foundIngredient,'non trouvé')
+          console.log(foundIngredient,' Non trouvé')
         }
         return ingredient;
       }));
@@ -127,11 +129,11 @@ router.post("/addpicture", async (req, res) => {
       recipe.ing = updatedIngredients;
       await recipe.save();
   
-      //je vérifie si tout s'est bien passé
+      // Je vérifie si tout s'est bien passé
       res.json({ result: true, data: recipe });
     } catch (error) {
-      console.error('Error transforming recipe:', error);
-      res.status(500).json({ result: false, error: 'Internal server error' });
+      console.error('Erreur lors de la transformation de la recette : ', error);
+      res.status(500).json({ result: false, error: 'Erreur interne du serveur' });
     }
   });
 
@@ -139,24 +141,25 @@ router.post("/addpicture", async (req, res) => {
   * route qui permet de transformer les ingrédients en string d'une recette en objectIds
   */
 
- //Je vais chercher une recette par son id
+ // Je vais chercher une recette par son id
+ // ${URL}/admin/transformallrecipes/
  router.get("/transformallrecipes/", async (req, res) => {
 
-  //est-ce que mon id est correctement renseignée ?
+  // Est-ce que mon id est correctement renseignée ?
 
-  //est-ce que mon id correspond à une recette de la db ?
+  // Est-ce que mon id correspond à une recette de la db ?
   try {
     const recipe = await Recipe2.find();
     if (!recipe) {
-      return res.json({ result: false, error: 'Recipe not found' });
+      return res.json({ result: false, error: 'Recette introuvable' });
     }
 
 
     for(let onerecipe of recipe)
     {
-    //  console.log(onerecipe.name) 
+    // console.log(onerecipe.name) 
     // Promise.all et map pour traiter tous les ingrédients en parallèle
-    //   pour chaque ingrédient je cherche un ingrédient correspondant dans ingredient2
+    // Pour chaque ingrédient je cherche un ingrédient correspondant dans ingredient2
     
     const updatedIngredients = await Promise.all(onerecipe.ing.map(async (ingredient) => {
 
@@ -167,8 +170,8 @@ router.post("/addpicture", async (req, res) => {
         // name: { $regex: new RegExp(`\\b${ingredient.ingredient}\\b`, "i") }
       });
 
-      //Si je trouve un ingrédient correspondant, je créé un objet qui mélange l'ingrédient original
-      //et le nouvel ID de l'ingrédient trouvé, sinon je ne modifie rien
+      // Si je trouve un ingrédient correspondant, je créé un objet qui mélange l'ingrédient original
+      // et le nouvel ID de l'ingrédient trouvé, sinon je ne modifie rien
       if (foundIngredient) {
         return {
           ...ingredient.toObject(),
@@ -177,21 +180,21 @@ router.post("/addpicture", async (req, res) => {
       }
       else
       {
-console.log('non trouvé',foundIngredient)
+console.log('Non trouvé',foundIngredient)
       }
       return ingredient;
       }
     }));
 
-    //je remplace la liste d'ingrédient par la nouvelle, puis je save
+    // Je remplace la liste d'ingrédient par la nouvelle, puis je save
     recipe.ing = updatedIngredients;
     await onerecipe.save();
   }
-    //je vérifie si tout s'est bien passé
+    // Je vérifie si tout s'est bien passé
     res.json({ result: true, data: recipe });
   } catch (error) {
-    console.error('Error transforming recipe:', error);
-    res.status(500).json({ result: false, error: 'Internal server error' });
+    console.error('Erreur lors de la transformation de la recette : ', error);
+    res.status(500).json({ result: false, error: 'Erreur interne du serveur' });
   }
 });
 
