@@ -17,44 +17,6 @@ const uid2 = require("uid2");
 //or array=["foo","bar"] puis JSON.parse()
 // optional: recipeId, serving if not empty: add the recipe to the menu newly created
 
-/* GET recipes listing with parameters. */
-// ${URL}/recipes/
-router.get(
-  "/",
-  function (req, res, next) {
-    const { sortBy = "popularity", search = "", tags } = req.query;
-    let queryFilters = {};
-    console.log("req.query:", req.query);
-    if (req.query.tags) {
-      let tags_parse = JSON.parse(req.query.tags);
-
-      if (tags_parse.length > 0) {
-        queryFilters.tags = { $all: tags_parse };
-      }
-    }
-
-    console.log("queryFilters:", queryFilters);
-    if (search) {
-      const decodedSearch = decodeURIComponent(search);
-      queryFilters.name = { $regex: new RegExp(decodedSearch, "gi") };
-    }
-
-    Recipe.find(queryFilters, ["_id", "name", "image", "popularity", "time"], {
-      sort: {
-        [sortBy]: -1,
-      },
-    }).then((data) => {
-      data.length > 0
-        ? res.json({ result: true, count: data.length, data })
-        : res.json({ result: false, error: "Impossible de trouver des recettes populaires" });
-    });
-    return;
-  }
-
-  // TO-DO
-  // gerer les accents dans la recherche
-  // gerer les whitespaces : hyphens? +?
-);
 // ${URL}/recipes/all
 router.get("/all", (req, res) => { 
   Recipe.find().then((data) =>
@@ -85,5 +47,45 @@ router.get("/:recipeId/:token", (req, res) => {
         : res.json({ result: false, error: "Recette introuvable" });
     });
 });
+
+/* GET recipes listing with parameters. */
+// ${URL}/recipes/
+router.get(
+  "/",
+  function (req, res) {
+    const { sortBy = "popularity", search = "", tags } = req.query;
+    let queryFilters = {};
+    console.log("req.query:", req.query);
+    if (req.query.tags) {
+      let tags_parse = JSON.parse(req.query.tags);
+
+      if (tags_parse.length > 0) {
+        queryFilters.tags = { $all: tags_parse };
+        return;
+      }
+    }
+
+    console.log("queryFilters:", queryFilters);
+    if (search) {
+      const decodedSearch = decodeURIComponent(search);
+      queryFilters.name = { $regex: new RegExp(decodedSearch, "gi") };
+    }
+
+    Recipe.find(queryFilters, ["_id", "name", "image", "popularity", "time"], {
+      sort: {
+        [sortBy]: -1,
+      },
+    }).then((data) => {
+      data.length > 0
+        ? res.json({ result: true, count: data.length, data })
+        : res.json({ result: false, error: "Impossible de trouver des recettes populaires" });
+    });
+    return;
+  }
+
+  // TO-DO
+  // gerer les accents dans la recherche
+  // gerer les whitespaces : hyphens? +?
+);
 
 module.exports = router;

@@ -56,6 +56,7 @@ router.post("/:menuId/addRecipe", (req, res) => {
     .then(menu => {
       if(!menu){
         res.json({ result: false, error: 'Pas de menu trouvé'})
+        return;
       }
 
       const newRecipe = {recipe: recipeId, serving};
@@ -71,7 +72,7 @@ router.post("/:menuId/addRecipe", (req, res) => {
 
 // Récupérer les menus 
 // ${URL}/menus/getMenus
- router.post("/getMenus", function (req, res, next) {
+ router.post("/getMenus", function (req, res) {
   
   if(!req.body.token){
     res.json({result: false, error: 'Token manquant'})
