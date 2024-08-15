@@ -78,14 +78,18 @@ Menu.findById(req.params.menuId)
     populate:  { path: 'ing.ingredient'  }
   })
 .then(menu => {
-        if (!menu) {
+        if (!menu) 
+        {
             res.json({ result: false, error: 'Pas de menu trouvé' })
+            return;
         }
         if (menu) { 
             let ingredientsList=[]
 
-            if (!menu.menu_recipes) {
+            if (!menu.menu_recipes) 
+            {
                 res.json({ result: false, error: 'Pas de recettes trouvées' })
+                return;
             }
             if(menu.menu_recipes)
             {
@@ -94,6 +98,7 @@ Menu.findById(req.params.menuId)
                 if (!recipe.recipe.ing) 
                 {
                     res.json({ result: false, error: 'Pas d\'ingrédients trouvé' })
+                    return;
                 }
                 if (recipe.recipe.ing) 
                 {
@@ -127,7 +132,7 @@ Menu.findById(req.params.menuId)
             shoplist.save().then(
                 (data) => {
                     console.log(list)
-                    res.json({ result: true,id: data.id, data: list })
+                    res.json({ result: true,id: data.id, data: data })
                 }
             )
 
