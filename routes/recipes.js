@@ -59,9 +59,8 @@ router.get(
     if (req.query.tags) {
       let tags_parse = JSON.parse(req.query.tags);
 
-      if (tags_parse.length > 0) {
+      if (Array.isArray(tags_parse) && tags_parse.length > 0) {
         queryFilters.tags = { $all: tags_parse };
-        return;
       }
     }
 
