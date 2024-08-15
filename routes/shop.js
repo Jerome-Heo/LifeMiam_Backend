@@ -40,14 +40,14 @@ router.put('/updatelist/:menuId', async (req, res) => {
         res.json({ result: false, error: 'Utilisateur inexistant' });
         return;
     }
-    Shop.findOneAndUpdate(req.params.shopId,{Ingredients : req.body.ingredients} )
+   
+    Shop.findOneAndUpdate({menu : req.params.menuId},{Ingredients : req.body.ingredients} )
 
     .then((data ) => {
         if(data)
         {
             res.json({result:true,data:data})
-            console.log(data)
-        }
+            console.log(req.body.ingredients)        }
         else
         {
             res.json({result:false,error: 'Pas de liste associée à ce menu'})
