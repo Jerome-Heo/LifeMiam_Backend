@@ -8,10 +8,11 @@ const User = require("../models/users");
 
 
 /** route permettant d'afficher une liste de course par id et token */
+// ${URL}/shop/getlist/:menuId
 router.post('/getlist/:menuId', async (req, res) => {
     const user = await User.findOne({ token: req.body.token })
     if (user === null) {
-        res.json({ result: false, error: 'User not found' });
+        res.json({ result: false, error: 'Utilisateur inexistant' });
         return;
     }
     Shop.findOne({menu : req.params.menuId})
@@ -23,7 +24,7 @@ router.post('/getlist/:menuId', async (req, res) => {
         }
         else
         {
-            res.json({result:false,error:'Pas de liste associée à ce menu'})
+            res.json({result:false,error: 'Pas de liste associée à ce menu'})
             console.log(data)
         }
         
@@ -32,10 +33,11 @@ router.post('/getlist/:menuId', async (req, res) => {
 })
 
 /** route permettant d'afficher une liste de course par id et token */
+// ${URL}/shop/updatelist/:menuId
 router.put('/updatelist/:menuId', async (req, res) => {
     const user = await User.findOne({ token: req.body.token })
     if (user === null) {
-        res.json({ result: false, error: 'User not found' });
+        res.json({ result: false, error: 'Utilisateur inexistant' });
         return;
     }
    
@@ -48,7 +50,7 @@ router.put('/updatelist/:menuId', async (req, res) => {
             console.log(req.body.ingredients)        }
         else
         {
-            res.json({result:false,error:'Pas de liste associée à ce menu'})
+            res.json({result:false,error: 'Pas de liste associée à ce menu'})
             console.log(data)
         }
         
@@ -62,13 +64,14 @@ router.put('/updatelist/:menuId', async (req, res) => {
 //token     wVL5sCx7YTgaO-fnxK5pX4mMG8JywAwQ
 // menu    66b4953aac86d4086b49267a
 // /shop/generate/
+// ${URL}/shop/generate/:menuId
 router.post('/generate/:menuId', async (req, res) => {
 const user = await User.findOne({ token: req.body.token })
 if (user === null) {
-    res.json({ result: false, error: 'User not found' });
+    res.json({ result: false, error: 'Utilisateur inexistant' });
     return;
 }
-//rechercher le menu avec le menu_id
+// Rechercher le menu avec le menu_id
 Menu.findById(req.params.menuId)
 .populate({
     path: 'menu_recipes.recipe',
@@ -76,13 +79,13 @@ Menu.findById(req.params.menuId)
   })
 .then(menu => {
         if (!menu) {
-            res.json({ result: false, error: 'pas de menu trouvé' })
+            res.json({ result: false, error: 'Pas de menu trouvé' })
         }
         if (menu) { 
             let ingredientsList=[]
 
             if (!menu.menu_recipes) {
-                res.json({ result: false, error: 'pas de recettes trouvées' })
+                res.json({ result: false, error: 'Pas de recettes trouvées' })
             }
             if(menu.menu_recipes)
             {
@@ -90,7 +93,7 @@ Menu.findById(req.params.menuId)
             {
                 if (!recipe.recipe.ing) 
                 {
-                    res.json({ result: false, error: 'pas d\'ingrédients trouvé' })
+                    res.json({ result: false, error: 'Pas d\'ingrédients trouvé' })
                 }
                 if (recipe.recipe.ing) 
                 {

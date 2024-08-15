@@ -17,10 +17,42 @@ const uid2 = require("uid2");
 //or array=["foo","bar"] puis JSON.parse()
 // optional: recipeId, serving if not empty: add the recipe to the menu newly created
 
+// ${URL}/recipes/all
+router.get("/all", (req, res) => { 
+  Recipe.find().then((data) =>
+  {
+    res.json({result: true, data});
+  })
+});
+
+// GET one recipe to display
+// ${URL}/recipes/:recipeId/:token
+router.get("/:recipeId/:token", (req, res) => {
+  User.findOne({ token: req.params.token }).then((user) => {
+    // console.log(req.query);
+    if (user === null) {
+      res.json({ result: false, error: "Utilisateur introuvable" });
+    }
+    return;
+  });
+
+  Recipe.findById(req.params.recipeId)
+    // .populate("_id", ["name", "unit", "_id"])
+    .populate("ing.ingredient")
+    .then((data) => {
+      console.log("response", data);
+      // console.log("populate", data.ing.ingredient);
+      data
+        ? res.json({ result: true, data })
+        : res.json({ result: false, error: "Recette introuvable" });
+    });
+});
+
 /* GET recipes listing with parameters. */
+// ${URL}/recipes/
 router.get(
   "/",
-  function (req, res, next) {
+  function (req, res) {
     const { sortBy = "popularity", search = "", tags } = req.query;
     let queryFilters = {};
     console.log("req.query:", req.query);
@@ -29,6 +61,7 @@ router.get(
 
       if (tags_parse.length > 0) {
         queryFilters.tags = { $all: tags_parse };
+        return;
       }
     }
 
@@ -45,7 +78,7 @@ router.get(
     }).then((data) => {
       data.length > 0
         ? res.json({ result: true, count: data.length, data })
-        : res.json({ result: false, error: "Cannot find popular recipes" });
+        : res.json({ result: false, error: "Impossible de trouver des recettes populaires" });
     });
     return;
   }
@@ -54,34 +87,5 @@ router.get(
   // gerer les accents dans la recherche
   // gerer les whitespaces : hyphens? +?
 );
-
-router.get("/all", (req, res) => { 
-  Recipe.find().then((data) =>
-  {
-    res.json({result: true, data});
-  })
-});
-
-// GET one recipe to display
-router.get("/:recipeId/:token", (req, res) => {
-  User.findOne({ token: req.params.token }).then((user) => {
-    // console.log(req.query);
-    if (user === null) {
-      res.json({ result: false, error: "User not found" });
-    }
-    return;
-  });
-
-  Recipe.findById(req.params.recipeId)
-    // .populate("_id", ["name", "unit", "_id"])
-    .populate("ing.ingredient")
-    .then((data) => {
-      console.log("response", data);
-      // console.log("populate", data.ing.ingredient);
-      data
-        ? res.json({ result: true, data })
-        : res.json({ result: false, error: "Recipe not found" });
-    });
-});
 
 module.exports = router;
