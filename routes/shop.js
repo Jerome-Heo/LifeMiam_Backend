@@ -15,21 +15,19 @@ router.post('/getlist/:menuId', async (req, res) => {
         res.json({ result: false, error: 'Utilisateur inexistant' });
         return;
     }
-    Shop.findOne({menu : req.params.menuId})
-    .then((data ) => {
-        if(data)
-        {
-            res.json({result:true,id: data.id,data:data})
-            console.log(data)
-        }
-        else
-        {
-            res.json({result:false,error: 'Pas de liste associée à ce menu'})
-            console.log(data)
-        }
-        
-        
-    })
+    Shop.findOne({ menu: req.params.menuId })
+        .then((data) => {
+            if (data) {
+                res.json({ result: true, id: data.id, data: data })
+                console.log(data)
+            }
+            else {
+                res.json({ result: false, error: 'Pas de liste associée à ce menu' })
+                console.log(data)
+            }
+
+
+        })
 })
 
 /** route permettant d'afficher une liste de course par id et token */
@@ -40,22 +38,21 @@ router.put('/updatelist/:menuId', async (req, res) => {
         res.json({ result: false, error: 'Utilisateur inexistant' });
         return;
     }
-   
-    Shop.findOneAndUpdate({menu : req.params.menuId},{Ingredients : req.body.ingredients} )
 
-    .then((data ) => {
-        if(data)
-        {
-            res.json({result:true,data:data})
-            console.log(req.body.ingredients)        }
-        else
-        {
-            res.json({result:false,error: 'Pas de liste associée à ce menu'})
-            console.log(data)
-        }
-        
-        
-    })
+    Shop.findOneAndUpdate({ menu: req.params.menuId }, { Ingredients: req.body.ingredients })
+
+        .then((data) => {
+            if (data) {
+                res.json({ result: true, data: data })
+                console.log(req.body.ingredients)
+            }
+            else {
+                res.json({ result: false, error: 'Pas de liste associée à ce menu' })
+                console.log(data)
+            }
+
+
+        })
 })
 
 
@@ -66,81 +63,73 @@ router.put('/updatelist/:menuId', async (req, res) => {
 // /shop/generate/
 // ${URL}/shop/generate/:menuId
 router.post('/generate/:menuId', async (req, res) => {
-const user = await User.findOne({ token: req.body.token })
-if (user === null) {
-    res.json({ result: false, error: 'Utilisateur inexistant' });
-    return;
-}
-// Rechercher le menu avec le menu_id
-Menu.findById(req.params.menuId)
-.populate({
-    path: 'menu_recipes.recipe',
-    populate:  { path: 'ing.ingredient'  }
-  })
-.then(menu => {
-        if (!menu) 
-        {
-            res.json({ result: false, error: 'Pas de menu trouvé' })
-            return;
-        }
-        if (menu) { 
-            let ingredientsList=[]
-
-            if (!menu.menu_recipes) 
-            {
-                res.json({ result: false, error: 'Pas de recettes trouvées' })
+    const user = await User.findOne({ token: req.body.token })
+    if (user === null) {
+        res.json({ result: false, error: 'Utilisateur inexistant' });
+        return;
+    }
+    // Rechercher le menu avec le menu_id
+    Menu.findById(req.params.menuId)
+        .populate({
+            path: 'menu_recipes.recipe',
+            populate: { path: 'ing.ingredient' }
+        })
+        .then(menu => {
+            if (!menu) {
+                res.json({ result: false, error: 'Pas de menu trouvé' })
                 return;
             }
-            if(menu.menu_recipes)
-            {
-            for (recipe of menu.menu_recipes)
-            {
-                if (!recipe.recipe.ing) 
-                {
-                    res.json({ result: false, error: 'Pas d\'ingrédients trouvé' })
+            if (menu) {
+                let ingredientsList = []
+
+                if (!menu.menu_recipes) {
+                    res.json({ result: false, error: 'Pas de recettes trouvées' })
                     return;
                 }
-                if (recipe.recipe.ing) 
-                {
- 
-                for (ingredient of recipe.recipe.ing)
-                {
-                   if (ingredient.ingredient)
-                   {
-                    ingredientsList.push(
-                        {
-                            name: ingredient.ingredient.name, 
-                            unit: ingredient.ingredient.unit, 
-                            quantity: ingredient.quantity*recipe.serving, 
-                            category: ingredient.ingredient.category,
-                            recipe:recipe.recipe._id
+                if (menu.menu_recipes) {
+                    for (recipe of menu.menu_recipes) {
+                        if (!recipe.recipe.ing) {
+                            res.json({ result: false, error: 'Pas d\'ingrédients trouvé' })
+                            return;
                         }
-                        )
-                   }
-                  
+                        if (recipe.recipe.ing) {
+
+                            for (ingredient of recipe.recipe.ing) {
+                                if (ingredient.ingredient) {
+                                    ingredientsList.push(
+                                        {
+                                            name: ingredient.ingredient.name,
+                                            unit: ingredient.ingredient.unit,
+                                            quantity: ingredient.quantity * recipe.serving,
+                                            category: ingredient.ingredient.category,
+                                            recipe: recipe.recipe._id
+                                        }
+                                    )
+                                }
+
+                            }
+                        }
+                    }
+
+                    let list = addIngredients(ingredientsList)
+
+                    let shoplist = new Shop({
+                        user_id: user._id,
+                        menu: req.params.menuId,
+                        Ingredients: list
+                    })
+                    shoplist.save().then(
+                        (data) => {
+                            console.log(list)
+                            res.json({ result: true, id: data.id, data: data })
+                        }
+                    )
+
+
                 }
-                }  
+
             }
-        
-            let list=addIngredients(ingredientsList)
-
-            let shoplist= new Shop({
-                user_id: user._id,
-                menu: req.params.menuId,
-                Ingredients:  list
-            })
-            shoplist.save().then(
-                (data) => {
-                    console.log(list)
-                    res.json({ result: true,id: data.id, data: data })
-                }
-            )
-
-          
-        }
-           
-        }
-    })
+        })
 
 
 
@@ -182,26 +171,26 @@ console.log(JSON.stringify(groupsCount(usersExample)));
 
 
 
-// // Nouvelle variable const ou let = []
-// const recipes = Menu.recipes;
-// let ingredientsList = [];
+    // // Nouvelle variable const ou let = []
+    // const recipes = Menu.recipes;
+    // let ingredientsList = [];
 
-// //Boucler sur le tableau des recettes (FOR) 
-// for (let i = 0; i < recipes.length; i++) {
-//     const recipe = recipes[i].recipe;
-//     recipe.ingredients.forEach(ingredient => {
-//         //Récupérer les ingrédients de la recette []
-//         //Pour chacun d'entre eux, récupérer le nom, l'unité, sa quantité et sa catégorie
-//         //A la sortie, la réponse ressemblera à [{name: "pomme", unit: "unité", quantity: 3, category: "fruits"}]
-//         ingredientsList.push({
-//             name: ingredient.name,
-//             unit: ingredient.unit,
-//             quantity: ingredient.quantity,
-//             category: ingredient.category,
-//         });
-//     });
-//     console.log(ingredientsList)
-// }
+    // //Boucler sur le tableau des recettes (FOR) 
+    // for (let i = 0; i < recipes.length; i++) {
+    //     const recipe = recipes[i].recipe;
+    //     recipe.ingredients.forEach(ingredient => {
+    //         //Récupérer les ingrédients de la recette []
+    //         //Pour chacun d'entre eux, récupérer le nom, l'unité, sa quantité et sa catégorie
+    //         //A la sortie, la réponse ressemblera à [{name: "pomme", unit: "unité", quantity: 3, category: "fruits"}]
+    //         ingredientsList.push({
+    //             name: ingredient.name,
+    //             unit: ingredient.unit,
+    //             quantity: ingredient.quantity,
+    //             category: ingredient.category,
+    //         });
+    //     });
+    //     console.log(ingredientsList)
+    // }
 
 })
 
